@@ -1,0 +1,49 @@
+{
+  "name": "Memorize",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "window": {
+    "title": "my access",
+    "icon": "lock.png",
+    "width": 500,
+    "height": 600,
+    "position": "mouse",
+    "min_width": 400,
+    "min_height": 200,
+    "max_width": 500,
+    "max_height": 600,
+    "frame": true,
+    "transparent": false
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack --watch",
+    "prod": "webpack"
+  },
+  "author": "bantioco",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-plugin-dynamic-import-webpack": "^1.0.2",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.6",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.6",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.10.0"
+  },
+  "dependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "css-loader": "^0.28.7",
+    "express": "^4.16.2",
+    "file-loader": "^1.1.6",
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "http-shutdown": "^1.2.0",
+    "style-loader": "^0.19.1",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.10.0"
+  }
+}
