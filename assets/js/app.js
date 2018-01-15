@@ -12,6 +12,10 @@ let app = function(){
 
     var order = "ASC";
 
+    $('.icon-login').hide()
+    $('.nav-btn').fadeIn(500)
+    $('.nav-disconnect').fadeIn(500)
+
 
     /***********************************************************************
         FUNCTION
@@ -99,13 +103,15 @@ let app = function(){
         return imgsend;
     }
 
+    var dropped = false;
+    var draggable_sibling;
 
     let item_sortable = ()=>{
 
         $( "#view_data" ).sortable({
-            items: "> .view-item",
+            items: ".view-item",
             handle: ".grip",
-            containment: "parent",
+            connectWith: ".category-view-item",
             opacity: 0.5,
             axis: "y",
             revert: true,
@@ -131,9 +137,61 @@ let app = function(){
                 }
 
             }
-        });
+        })
     }
 
+    let item_droppable = ()=>{
+
+        $( ".category-view-item" ).droppable({
+            accept: ".view-item",
+            over: function( event, ui ) {
+                console.log('over')
+
+                dropped = true;
+                $(event.target).addClass('dropped');
+            },
+            drop: function( event, ui ){
+
+                console.log( 'drop' )
+
+                let targetID    = $(event.target).attr('data-id')
+                let clone       = $(ui.draggable[0]).clone()
+
+                $(ui.draggable[0]).addClass("ToRemove")
+
+                let itemID = $(ui.draggable[0]).attr('data-id')
+
+                //$('.category-view-item[data-id="'+targetID+'"]').prepend( clone );
+                $(clone).insertBefore('.ui-sortable-placeholder')
+
+                $(clone).removeAttr('style')
+
+                $('.ToRemove').remove()
+
+                $('.category-view-item').removeClass('dropped')
+
+                db.transaction(function(tx) {
+
+                    tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', [targetID, itemID]);
+                    console.log('category updated')
+
+                })
+            },
+            out: function( event, ui ) {
+                console.log('out')
+
+                let itemID = $(ui.draggable[0]).attr('data-id')
+
+                db.transaction(function(tx) {
+
+                    tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', ["0", itemID]);
+                    console.log('out updated')
+
+                })
+            }
+        });
+
+    }
 
     let search_script = ()=>{
         /**************************************************
@@ -186,113 +244,185 @@ let app = function(){
         **************************************************/
     }
 
+    let load_category = ( order = "ASC" )=>{
+
+        db.transaction(function(tx) {
+
+            tx.executeSql('SELECT rowid, * FROM category ORDER BY position '+ order, [], function (tx, results) {
+
+                if( results.rows ){
+
+                    let data        = results.rows;
+
+                    $(data).each(function(i, v) {
+
+                        let category =
+                            '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-category">'+
+                                '<div class="title-block">'+
+                                    '<div data-id="'+v.rowid+'" class="category-hide"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
+                                    '<div class="img-category"><img src="/upload/'+v.img+'"></div>'+
+                                    '<div class="title-category">'+v.title+'</div>'+
+                                '</div>'+
+                                '<div data-id="'+v.rowid+'" class="category-view-item"></div>'
+                            '</div>';
+
+                        $('#view_data').prepend(category)
+
+                        $('.category-hide[data-id="'+v.rowid+'"]').children('i').css('transform','rotate(45deg)')
+
+                    })
+
+                }
+
+            })
+
+        })
+    }
+
 
     let load_data = ( order = "ASC" )=>{
 
-        if( window.openDatabase ){
+        load_category()
 
-            var db = openDatabase('my_acess_db', '1.0', 'My access db', 5 * 1024 * 1024);
+        setTimeout(function(){
 
-            db.transaction(function(tx) {
+            if( window.openDatabase ){
 
-                tx.executeSql('SELECT rowid, * FROM datas ORDER BY position '+ order, [], function (tx, results) {
 
-                    if( results.rows ){
+                var db = openDatabase('my_acess_db', '1.0', 'My access db', 5 * 1024 * 1024);
 
-                        let data        = results.rows;
+                db.transaction(function(tx) {
 
-                        $(data).each(function(i, v) {
+                    tx.executeSql('SELECT rowid, * FROM datas ORDER BY position '+ order, [], function (tx, results) {
 
-                            var description = v.description
+                        if( results.rows ){
 
-                            if( v.encrypted === "1" ){
+                            let data        = results.rows;
 
-                                tx.executeSql("SELECT key FROM encryption", [], function(tx,results) {
-                                    if( results.rows[0] ){
+                            $(data).each(function(i, v) {
 
-                                        let key = results.rows[0].key;
+                                var description = v.description
 
-                                        description = CryptoJS.AES.decrypt(v.description, key);
-                                        description = description.toString(CryptoJS.enc.Utf8);
+                                if( v.encrypted === "1" ){
 
-                                        let item =
-                                            '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data">'+
+                                    tx.executeSql("SELECT key FROM encryption", [], function(tx,results) {
+                                        if( results.rows[0] ){
 
-                                                '<div class="nav-item">'+
-                                                    '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
-                                                    '<div class="title-item">'+v.title+'</div>'+
-                                                    '<div data-id="'+v.rowid+'" class="grip-notice">Drag me..</div>'+
-                                                    '<div data-id="'+v.rowid+'" class="grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
-                                                    '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-trash view_item_delete" aria-hidden="true"></i></div>'+
-                                                    '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-pencil view_item_edit" aria-hidden="true"></i></div>'+
-                                                '</div>'+
+                                            let key = results.rows[0].key;
 
-                                                '<div data-id="'+v.rowid+'" class="item-delete-confirmation">'+
-                                                    '<div class="item_confirm_delete">CONFIRM</div><div class="item_cancel_delete">CANCEL</div>'+
-                                                '</div>'+
+                                            description = CryptoJS.AES.decrypt(v.description, key);
+                                            description = description.toString(CryptoJS.enc.Utf8);
 
-                                                '<div data-id="'+v.rowid+'" class="description-item">'+
-                                                    '<div class="img"><img src="/upload/'+v.img+'" alt="" /></div>'+
-                                                    '<div class="text">'+description+'</div>'+
-                                                '</div>'+
-                                                '<div class="date-item">'+
-                                                    '<div class="item-encrypt">Encrypted..</div>'+
-                                                    '<div class="item-position">'+position+'</div>'+
-                                                    '<div class="date-up">Updated : '+v.dateupdate+'</div>'+
-                                                '</div>'+
+                                            let item =
+                                                '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data">'+
 
-                                            '</div>';
+                                                    '<div class="nav-item">'+
+                                                        '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
+                                                        '<div class="title-item">'+v.title+'</div>'+
+                                                        '<div data-id="'+v.rowid+'" class="grip-notice">Drag me..</div>'+
+                                                        '<div data-id="'+v.rowid+'" class="grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
+                                                        '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-trash view_item_delete" aria-hidden="true"></i></div>'+
+                                                        '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-pencil view_item_edit" aria-hidden="true"></i></div>'+
+                                                    '</div>'+
 
-                                        $('#view_data').append(item)
+                                                    '<div data-id="'+v.rowid+'" class="item-delete-confirmation">'+
+                                                        '<div class="item_confirm_delete">DELETE</div><div class="item_cancel_delete">CANCEL</div>'+
+                                                    '</div>'+
+
+                                                    '<div data-id="'+v.rowid+'" class="description-item">'+
+                                                        '<div class="img"><img src="/upload/'+v.img+'" alt="" /></div>'+
+                                                        '<div class="text">'+description+'</div>'+
+                                                    '</div>'+
+                                                    '<div class="date-item">'+
+                                                        '<div class="item-encrypt">Encrypted..</div>'+
+                                                        '<div class="item-position">'+position+'</div>'+
+                                                        '<div class="date-up">Updated : '+v.dateupdate+'</div>'+
+                                                    '</div>'+
+
+                                                '</div>';
+
+                                            if( v.category != "0"){
+
+                                                if( $('.category-view-item[data-id="'+v.category+'"]').is(':visible') ){
+
+                                                    $('.category-view-item[data-id="'+v.category+'"]').append(item)
+                                                    console.log(v.category)
+                                                }
+                                                else{
+                                                   $('#view_data').append(item)
+                                                }
+                                            }
+
+                                            else{
+                                               $('#view_data').append(item)
+                                            }
+                                        }
+                                    })
+                                }
+                                else{
+                                    let item =
+                                        '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data">'+
+
+                                            '<div class="nav-item">'+
+                                                '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
+                                                '<div class="title-item">'+v.title+'</div>'+
+                                                '<div data-id="'+v.rowid+'" class="grip-notice">Drag me..</div>'+
+                                                '<div data-id="'+v.rowid+'" class="grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
+                                                '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-trash view_item_delete" aria-hidden="true"></i></div>'+
+                                                '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-pencil view_item_edit" aria-hidden="true"></i></div>'+
+                                            '</div>'+
+
+                                            '<div data-id="'+v.rowid+'" class="item-delete-confirmation">'+
+                                                '<div class="item_confirm_delete">DELETE</div><div class="item_cancel_delete">CANCEL</div>'+
+                                            '</div>'+
+
+                                            '<div data-id="'+v.rowid+'" class="description-item">'+
+                                                '<div class="img"><img src="/upload/'+v.img+'" alt="" /></div>'+
+                                                '<div class="text">'+description+'</div>'+
+                                            '</div>'+
+                                            '<div class="date-item">'+
+                                                '<div class="item-encrypt">Not encrypted..</div>'+
+                                                '<div class="item-position">'+position+'</div>'+
+                                                '<div class="date-up">Updated : '+v.dateupdate+'</div>'+
+                                            '</div>'+
+
+                                        '</div>';
+
+                                    if( v.category != "0"){
+
+                                        if( $('.category-view-item[data-id="'+v.category+'"]').is(':visible') ){
+
+                                            $('.category-view-item[data-id="'+v.category+'"]').append(item)
+                                            console.log(v.category)
+                                        }
+                                        else{
+                                           $('#view_data').append(item)
+                                        }
                                     }
-                                })
-                            }
-                            else{
-                                let item =
-                                    '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data">'+
 
-                                        '<div class="nav-item">'+
-                                            '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
-                                            '<div class="title-item">'+v.title+'</div>'+
-                                            '<div data-id="'+v.rowid+'" class="grip-notice">Drag me..</div>'+
-                                            '<div data-id="'+v.rowid+'" class="grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
-                                            '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-trash view_item_delete" aria-hidden="true"></i></div>'+
-                                            '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-pencil view_item_edit" aria-hidden="true"></i></div>'+
-                                        '</div>'+
+                                    else{
+                                       $('#view_data').append(item)
+                                    }
+                                }
 
-                                        '<div data-id="'+v.rowid+'" class="item-delete-confirmation">'+
-                                            '<div class="item_confirm_delete">CONFIRM</div><div class="item_cancel_delete">CANCEL</div>'+
-                                        '</div>'+
+                                let position = i+1;
 
-                                        '<div data-id="'+v.rowid+'" class="description-item">'+
-                                            '<div class="img"><img src="/upload/'+v.img+'" alt="" /></div>'+
-                                            '<div class="text">'+description+'</div>'+
-                                        '</div>'+
-                                        '<div class="date-item">'+
-                                            '<div class="item-encrypt">Not encrypted..</div>'+
-                                            '<div class="item-position">'+position+'</div>'+
-                                            '<div class="date-up">Updated : '+v.dateupdate+'</div>'+
-                                        '</div>'+
+                                tx.executeSql('UPDATE datas SET position=? WHERE rowid=?', [i, v.rowid]);
+                            });
 
-                                    '</div>';
+                            item_sortable();
 
-                                $('#view_data').append(item)
-                            }
+                            search_script();
 
-                            let position = i+1;
-
-                            tx.executeSql('UPDATE datas SET position=? WHERE rowid=?', [i, v.rowid]);
-                        });
-
-                        item_sortable();
-                        search_script();
-                    }
+                            setTimeout(function(){ item_droppable(); },2000)
+                        }
+                    });
                 });
-            });
-        }
-        else{
-            import('./first_login.js').then(function(first_login) { first_login.default(); });
-        }
+            }
+            else{
+                import('./first_login.js').then(function(first_login) { first_login.default(); });
+            }
+        },500)
     }
 
 
@@ -667,6 +797,22 @@ let app = function(){
             })
 
 
+            db.transaction(function(tx) {
+
+                tx.executeSql("SELECT category FROM datas", [], function( tx,results ) {
+                    console.log( results )
+                })
+
+            }, function(err){
+                console.log( err )
+                if( err.message === "could not prepare statement (1 no such column: category)"){
+                    db.transaction(function(tx) {
+                        tx.executeSql("ALTER TABLE datas ADD category VARCHAR NOT NULL DEFAULT '0' ")
+                    })
+                }
+            })
+
+
 
             db.transaction(function(tx) {
 
@@ -684,7 +830,7 @@ let app = function(){
             })
 
         }
-        //add_column()
+        add_column()
     /***********************************************
         END **FOR DEV**
     ***********************************************/
@@ -796,6 +942,12 @@ let app = function(){
 
     $d.off('click', '#add_data').on('click', '#add_data', function(){
         $.post('/templates/add.html', function( data ){
+            $('#template_load').html( data );
+        });
+    })
+
+    $d.off('click', '#add_category').on('click', '#add_category', function(){
+        $.post('/templates/add_category.html', function( data ){
             $('#template_load').html( data );
         });
     })
@@ -1113,7 +1265,7 @@ let app = function(){
 
             db.transaction(function (tx) {
 
-                tx.executeSql("CREATE TABLE IF NOT EXISTS datas (title, description LONGTEXT, img, position, dateadd DATETIME, dateupdate DATETIME, encrypted VARCHAR NOT NULL DEFAULT '0')");
+                tx.executeSql("CREATE TABLE IF NOT EXISTS datas (title, description LONGTEXT, img, position, dateadd DATETIME, dateupdate DATETIME, encrypted VARCHAR NOT NULL DEFAULT '0', category VARCHAR NOT NULL DEFAULT '0')");
 
                 tx.executeSql("SELECT key FROM encryption", [], function(tx,results) {
                     if( results.rows[0] ){
@@ -1123,10 +1275,10 @@ let app = function(){
                         let description_encrypt = CryptoJS.AES.encrypt(description, key);
                         description_encrypt = description_encrypt.toString()
 
-                        tx.executeSql('INSERT INTO datas (title, description, img, dateadd, dateupdate, encrypted) VALUES ("'+title+'", "'+description_encrypt+'", "'+imgsend+'", "'+datetime+'", "'+datetime+'", "1")');
+                        tx.executeSql('INSERT INTO datas (title, description, img, dateadd, dateupdate, encrypted, category) VALUES ("'+title+'", "'+description_encrypt+'", "'+imgsend+'", "'+datetime+'", "'+datetime+'", "1", "0")');
                     }
                     else{
-                        tx.executeSql('INSERT INTO datas (title, description, img, dateadd, dateupdate, encrypted) VALUES ("'+title+'", "'+description+'", "'+imgsend+'", "'+datetime+'", "'+datetime+'", "0")');
+                        tx.executeSql('INSERT INTO datas (title, description, img, dateadd, dateupdate, encrypted, category) VALUES ("'+title+'", "'+description+'", "'+imgsend+'", "'+datetime+'", "'+datetime+'", "0", "0")');
                     }
                 })
 
@@ -1165,6 +1317,79 @@ let app = function(){
 
                 setTimeout(function(){
                     $('textarea[name="add_description"]').val(description)
+                },2000)
+            }
+        }
+    })
+
+
+    /***********************************************************************
+        ADD CATEGORY
+    ************************************************************************/
+    $d.off('change', 'input[name="add_category_img"]').on('change', 'input[name="add_category_img"]', function(){
+
+        if (this.files && this.files[0]) {
+
+            let reader      = new FileReader();
+            reader.onload   = imageIsLoaded;
+
+            reader.readAsDataURL(this.files[0]);
+        }
+
+    })
+
+    $d.off('submit', '#form_add_category').on('submit', '#form_add_category', function( e ){
+        e.preventDefault()
+
+        let title       = $('input[name="add_category_title"]').val()
+        let description = nl2br( $('textarea[name="add_category_description"]').val() )
+
+        if( title.length >= 1 && description.length >= 1 ){
+
+            let img         = $('input[name="add_category_img"]').val()
+
+            let $this = $('input[name="add_category_img"]')[0]
+
+            let imgsend = upload_img(img, $this);
+
+            db.transaction(function (tx) {
+
+                tx.executeSql("CREATE TABLE IF NOT EXISTS category (title, description LONGTEXT, img, position, dateadd DATETIME, dateupdate DATETIME)");
+
+                tx.executeSql('INSERT INTO category (title, description, img, dateadd, dateupdate) VALUES ("'+title+'", "'+description+'", "'+imgsend+'", "'+datetime+'", "'+datetime+'")');
+
+                $('input[name="add_category_title"]').val('')
+                $('textarea[name="add_category_description"]').val('')
+                $('file[name="add_category_img"]').val('')
+
+
+                $.post('/templates/view.html', function( data ){
+
+                    $('#template_load').html( data );
+
+                    load_data(order);
+                })
+
+            })
+
+        }
+        else{
+
+            if(title.length <=0 ){
+
+                $('input[name="add_category_title"]').val('this field is empty..')
+
+                setTimeout(function(){
+                    $('input[name="add_category_title"]').val(title)
+                },2000)
+            }
+
+            if(description.length <=0 ){
+
+                $('textarea[name="add_category_description"]').val('this field is empty..')
+
+                setTimeout(function(){
+                    $('textarea[name="add_category_description"]').val(description)
                 },2000)
             }
         }
@@ -1354,6 +1579,22 @@ let app = function(){
 
     })
 
+    $d.off('click', '.category-hide').on('click', '.category-hide', function(){
+
+        let rowid = $(this).attr('data-id');
+
+        if( $('.category-view-item[data-id="'+rowid+'"]').is(':visible') ){
+            $(this).children('i').css('transform','rotate(0deg)')
+        }
+        else{
+            $(this).children('i').css('transform','rotate(45deg)')
+        }
+
+        $('.category-view-item[data-id="'+rowid+'"]').slideToggle(300)
+
+    })
+
+
     $d.off('click', '.hide-item').on('click', '.hide-item', function(){
 
         let rowid = $(this).attr('data-id');
@@ -1415,7 +1656,7 @@ let app = function(){
         let dataid = $(this).attr('data-id')
         $('.grip-notice[data-id="'+dataid+'"]').fadeIn(300)
     })
-    $d.off('mouseleave', '.grip').on('mouseleave', '.grip', function(){
+    $d.off('mouseleave', '.grip, .view-item').on('mouseleave', '.grip, .view-item', function(){
         let dataid = $(this).attr('data-id')
         $('.grip-notice[data-id="'+dataid+'"]').fadeOut(300)
     })

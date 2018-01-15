@@ -2,6 +2,10 @@ let first_login = function(){
 
     let $d = $(document)
 
+    $('.nav-btn').hide()
+    $('.nav-disconnect').hide()
+    $('.icon-login').fadeIn(300)
+
     $.post('/templates/first_login.html', function( data ){
         $('#template_load').html( data )
     })

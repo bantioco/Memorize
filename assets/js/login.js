@@ -2,7 +2,9 @@ let login = function(){
 
     let $d = $(document)
 
-    $('#app_nav').hide()
+    $('.nav-btn').hide()
+    $('.nav-disconnect').hide()
+    $('.icon-login').fadeIn(300)
 
     $.post('/templates/login.html', function( data ){
         $('#template_load').html( data )

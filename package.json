@@ -18,17 +18,20 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack --watch",
+    "dev": "NODE_ENV=dev webpack",
     "prod": "webpack"
   },
   "author": "bantioco",
   "license": "MIT",
   "devDependencies": {
+    "autoprefixer": "^7.2.5",
     "babel-plugin-dynamic-import-webpack": "^1.0.2",
+    "clean-webpack-plugin": "^0.1.17",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.6",
     "node-sass": "^4.7.2",
     "sass-loader": "^6.0.6",
+    "uglifyjs-webpack-plugin": "^1.1.6",
     "url-loader": "^0.6.2",
     "webpack": "^3.10.0"
   },

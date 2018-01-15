@@ -49,10 +49,12 @@ body{
     box-sizing:border-box;
 }
 
+
+
 .login-main{
     position: relative;
     overflow: visible;
-    margin: 10px;
+    margin: 10px 70px;
     background-color: #FFFFFF;
 
     .app-name{
@@ -76,11 +78,25 @@ body{
     color: #FFFFFF;
     transition: background-color .3s;
 
+    .icon-login{
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        padding: 10px;
+        display:none;
+
+        i{
+            color: #FFBA2A;
+        }
+
+    }
+
     .nav-btn{
         position: relative;
         overflow: hidden;
         text-align: center;
         padding: 10px;
+        display:none;
 
         i{
             cursor:pointer;
@@ -99,6 +115,7 @@ body{
         text-align: center;
         min-width: 38px;
         padding: 10px;
+        display: none;
 
         i{
             cursor:pointer;
@@ -119,10 +136,76 @@ body{
     background-color: #FFFFFF;
     margin-bottom: 30px;
 
+
+    .view-category{
+
+        position:relative;
+        overflow:visible;
+        background-color: #FFFFFF;
+
+        .title-block{
+            position:relative;
+            overflow:hidden;
+            margin-top: 10px;
+
+            .category-hide{
+                position:relative;
+                overflow: hidden;
+                float: left;
+                padding: 0 5px 0 0;
+                font-size: 28px;
+                i{
+                    cursor:pointer;
+                }
+            }
+
+            .img-category{
+                position:relative;
+                overflow: hidden;
+                float: left;
+                overflow:hidden;
+                padding: 0 5px;
+
+                text-align: center;
+
+                img{
+                    height: 25px;
+                    margin-top: 3px;
+                }
+            }
+
+            .title-category{
+                position:relative;
+                overflow: hidden;
+                float: left;
+                overflow:hidden;
+                font-size: 28px;
+                font-weight: bold;
+                padding: 0 5px;
+            }
+
+            .title-category:first-letter{
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    .category-view-item{
+        position:relative;
+        overflow:visible;
+        min-height: 50px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #FDFDFD;
+        -webkit-border-radius: 3px 0 3px 0;
+        -moz-border-radius: 3px 0 3px 0;
+        border-radius: 3px 0 3px 0;
+    }
+
     .view-item{
         position:relative;
         overflow:hidden;
-        margin: 10px 0 10px 0;
+        margin: 10px 5px 10px 5px;
         border:1px solid #3A3F42;
         background-color: #FFFFFF;
 
@@ -141,16 +224,33 @@ body{
                 position: relative;
                 overflow: hidden;
                 float: left;
-                padding: 10px;
+                padding: 5px;
                 cursor: pointer;
+                text-align:center;
+                width: 100px;
+                /*margin-left: 20%;*/
+                background-color: #FF1A00;
+                color: #FFFFFF;
+                margin: 0 20px 0 0;
+            }
+
+            .item_confirm_delete:hover,
+            .item_cancel_delete:hover{
+                opacity: 0.5;
             }
 
             .item_cancel_delete{
                 position: relative;
                 overflow: hidden;
-                float: right;
-                padding: 10px;
+                float: left;
+                padding: 5px;
                 cursor: pointer;
+                text-align:center;
+                width: 100px;
+                /*margin-right: 20%;*/
+                background-color: #3A3F42;
+                color: #FFFFFF;
+                margin: 0 20px 0 0;
             }
         }
 
@@ -323,7 +423,6 @@ body{
 
         }
 
-
     }
 
     .params-title{
@@ -348,6 +447,7 @@ body{
     .ui-sortable-placeholder{
         position: relative;
         min-height: 60px;
+        background-color: transparent;
         border: 1px dotted #2CBCD3 !important;
         visibility: visible !important;
         content: "";
@@ -496,6 +596,7 @@ input#item_filter_keywords{
 }
 
 label[for="add_img"],
+label[for="add_category_img"],
 label[for="edit_img"]{
     display:inline-block;
     border:1px solid #3A3F42;
@@ -507,6 +608,7 @@ label[for="edit_img"]{
 }
 
 input[type="file"][name="add_img"],
+input[type="file"][name="add_category_img"],
 input[type="file"][name="edit_img"]{
     opacity:0;
     display:none;

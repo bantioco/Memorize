@@ -93,7 +93,7 @@ jQuery( function( $ ){
 
     let $d = $(document);
 
-    $('#app_nav').hide()
+    //$('#app_nav').hide()
 
     $d.ready(function(){
 
