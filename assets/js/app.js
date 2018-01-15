@@ -146,7 +146,6 @@ let app = function(){
         $( ".category-view-item" ).droppable({
             accept: ".view-item",
             over: function( event, ui ) {
-                dropped = true;
                 $(event.target).addClass('dropped');
             },
             drop: function( event, ui ){
