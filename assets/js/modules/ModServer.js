@@ -80,8 +80,7 @@ let sync_get_data_json = ()=>{
 // WEB SERVER..
 let http_server_start = ( localIP, key )=>{
 
-    console.log('Server start')
-    console.log( key )
+    console.log('*** Express server START ***')
 
     let hostname    = localIP;
     let port        = 3000;
@@ -116,7 +115,7 @@ let http_server_start = ( localIP, key )=>{
     app.use(TheRouter);
 
     app.listen(port, hostname, function(){
-        console.log("Mon serveur fonctionne sur http://"+ hostname +":"+port+"/"+key+"\n");
+        console.log("*** SERVER SYNC LINK ***\nhttp://"+ hostname +":"+port+"/"+key+"\n");
     });
 
 }
@@ -128,7 +127,7 @@ let http_server_stop = ()=>{
 
     let serverStop = function() {
       server.close();
-      console.log('Server stop')
+      console.log('*** Express server STOP ***')
     };
 
     serverStop()

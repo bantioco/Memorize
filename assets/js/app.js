@@ -2,15 +2,18 @@ let app = function(){
 
     let $d = $(document), login, email, remember = "0", datetime = moment().format("YYYY-MM-DD HH:mm:ss"), myIP;
 
+    console.log( db )
+
     if( window.openDatabase ){
         var db = openDatabase('my_acess_db', '1.0', 'My access db', 5 * 1024 * 1024);
-        console.log('Success to open database')
     }
     else{
         import('./first_login.js').then(function(first_login) { first_login.default(); });
     }
 
     var order = "ASC";
+
+
 
     $('.icon-login').hide()
     $('.nav-btn').fadeIn(500)
@@ -68,7 +71,7 @@ let app = function(){
         source.pipe(dest);
 
         source.on('end', function() {
-            console.log('Succesfully copied');
+
         });
         source.on('error', function(err) {
             console.log(err);
@@ -103,8 +106,6 @@ let app = function(){
         return imgsend;
     }
 
-    var dropped = false;
-    var draggable_sibling;
 
     let item_sortable = ()=>{
 
@@ -145,14 +146,10 @@ let app = function(){
         $( ".category-view-item" ).droppable({
             accept: ".view-item",
             over: function( event, ui ) {
-                console.log('over')
-
                 dropped = true;
                 $(event.target).addClass('dropped');
             },
             drop: function( event, ui ){
-
-                console.log( 'drop' )
 
                 let targetID    = $(event.target).attr('data-id')
                 let clone       = $(ui.draggable[0]).clone()
@@ -173,20 +170,15 @@ let app = function(){
                 db.transaction(function(tx) {
 
                     tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', [targetID, itemID]);
-                    console.log('category updated')
 
                 })
             },
             out: function( event, ui ) {
-                console.log('out')
 
                 let itemID = $(ui.draggable[0]).attr('data-id')
 
                 db.transaction(function(tx) {
-
                     tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', ["0", itemID]);
-                    console.log('out updated')
-
                 })
             }
         });
@@ -346,13 +338,12 @@ let app = function(){
                                                 if( $('.category-view-item[data-id="'+v.category+'"]').is(':visible') ){
 
                                                     $('.category-view-item[data-id="'+v.category+'"]').append(item)
-                                                    console.log(v.category)
                                                 }
                                                 else{
+
                                                    $('#view_data').append(item)
                                                 }
                                             }
-
                                             else{
                                                $('#view_data').append(item)
                                             }
@@ -393,7 +384,6 @@ let app = function(){
                                         if( $('.category-view-item[data-id="'+v.category+'"]').is(':visible') ){
 
                                             $('.category-view-item[data-id="'+v.category+'"]').append(item)
-                                            console.log(v.category)
                                         }
                                         else{
                                            $('#view_data').append(item)
@@ -485,7 +475,7 @@ let app = function(){
             })
 
         }, function( err ){
-            console.log('no database')
+            console.log( err )
             thekey.resolve('null')
         })
 
@@ -506,30 +496,21 @@ let app = function(){
 
         db.transaction(function (tx) {
 
-            //let key    = Math.random().toString(66).substring(2, 15) + Math.random().toString(66).substring(2, 15);
-
             let key = generate_key()
 
             tx.executeSql('CREATE TABLE IF NOT EXISTS synchronize (key, active, datestart DATETIME)');
 
-            console.log( 'synchronize table created')
-
             tx.executeSql('INSERT INTO synchronize (key, active, datestart) VALUES ("'+key+'", "1", "'+datetime+'")');
-
-            console.log( 'data insered in synchronize table')
 
             tx.executeSql('CREATE TABLE IF NOT EXISTS synchronize_autorized (key, ip, machine, dateadd DATETIME)');
 
-            console.log( 'synchronize_autorized table created')
-
             tx.executeSql('CREATE TABLE IF NOT EXISTS synchronize_log (ip, key, datelog DATETIME)');
 
-            console.log( 'synchronize_log table created')
+            tx.executeSql("CREATE TABLE IF NOT EXISTS datas (title, description LONGTEXT, img, position, dateadd DATETIME, dateupdate DATETIME, encrypted VARCHAR NOT NULL DEFAULT '0', category VARCHAR NOT NULL DEFAULT '0')");
 
         }, function( err ){
 
             console.log( err )
-
         })
 
         return
@@ -611,8 +592,8 @@ let app = function(){
         let encrypted       = data.encrypted
 
         db.transaction(function(tx) {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS datas (title, description LONGTEXT, img, position, dateadd DATETIME, dateupdate DATETIME, encrypted VARCHAR NOT NULL DEFAULT '0')");
-            tx.executeSql('INSERT INTO datas (title, description, img, position, dateadd, dateupdate, encrypted) VALUES ("'+title+'", "'+description+'", "'+img+'", "'+position+'", "'+dateadd+'", "'+dateupdate+'", "'+encrypted+'")');
+            tx.executeSql("CREATE TABLE IF NOT EXISTS datas (title, description LONGTEXT, img, position, dateadd DATETIME, dateupdate DATETIME, encrypted VARCHAR NOT NULL DEFAULT '0', category VARCHAR NOT NULL DEFAULT '0')");
+            tx.executeSql('INSERT INTO datas (title, description, img, position, dateadd, dateupdate, encrypted, category) VALUES ("'+title+'", "'+description+'", "'+img+'", "'+position+'", "'+dateadd+'", "'+dateupdate+'", "'+encrypted+'", "0")');
         })
 
         /*
@@ -642,7 +623,7 @@ let app = function(){
             })
 
         },function( err ){
-            console.log('no database')
+            console.log(err)
             data.resolve('null')
         })
 
@@ -655,17 +636,13 @@ let app = function(){
 
             tx.executeSql("SELECT * FROM encryption", [], function(tx,results) {
 
-                console.log( results )
-
                 if( results.rows[0] ){
-                    console.log( 'update' )
                     tx.executeSql('UPDATE encryption SET key=? where rowid=?', [str, 1]);
                 }
                 else{
 
                     tx.executeSql('INSERT INTO encryption (key) VALUES ("'+str+'")');
                 }
-                console.log( results )
             })
         })
     }
@@ -722,7 +699,6 @@ let app = function(){
                 }
             })
         })
-        console.log( 'crypt data' )
     }
 
     let decrypt_data = (key)=>{
@@ -749,8 +725,6 @@ let app = function(){
             })
 
         })
-
-        console.log( 'decrypt data' )
     }
 
     let backup_download = ()=>{
@@ -783,9 +757,7 @@ let app = function(){
 
             db.transaction(function(tx) {
 
-                tx.executeSql("SELECT encrypted FROM datas", [], function( tx,results ) {
-                    console.log( results )
-                })
+                tx.executeSql("SELECT encrypted FROM datas", [], function( tx,results ) {})
 
             }, function(err){
                 console.log( err )
@@ -799,9 +771,7 @@ let app = function(){
 
             db.transaction(function(tx) {
 
-                tx.executeSql("SELECT category FROM datas", [], function( tx,results ) {
-                    console.log( results )
-                })
+                tx.executeSql("SELECT category FROM datas", [], function( tx,results ) {})
 
             }, function(err){
                 console.log( err )
@@ -816,9 +786,7 @@ let app = function(){
 
             db.transaction(function(tx) {
 
-                tx.executeSql("SELECT state FROM encryption", [], function( tx,results ) {
-                    console.log( results )
-                })
+                tx.executeSql("SELECT state FROM encryption", [], function( tx,results ) {})
 
             }, function(err){
                 console.log( err )
@@ -843,8 +811,6 @@ let app = function(){
 
     db.transaction(function (tx) {
 
-        console.log('Select user info')
-
         tx.executeSql('SELECT * FROM user', [], function (tx, results) {
 
             if( results.rows[0] ){
@@ -859,8 +825,6 @@ let app = function(){
 
     // ** ON START LOAD VIEW.HTML **
     $.post('/templates/view.html', function( data ){
-
-        console.log('Template View loaded')
 
         $('#template_load').html( data );
 
@@ -1131,11 +1095,9 @@ let app = function(){
 
                             if( items.length <= 0 ){
                                 sync_data_insert(v)
-                                console.log('item insered..')
                                 $('#get_api_for_synchronize_result').html('<div id="get_api_for_synchronize_result_html">'+title+' insered..</div>')
                             }
                             else{
-                                console.log('item allready on database..')
                                 $('#get_api_for_synchronize_result').html('<div id="get_api_for_synchronize_result_html">All items are allready on database..</div>')
                             }
 
@@ -1231,6 +1193,25 @@ let app = function(){
                 })
             }
         })
+    })
+
+    $d.off('click', '.key_encription_show').on('click', '.key_encription_show', function(){
+
+        $('.key_encription_show').hide()
+        $('.key_encription_hide').show()
+
+        $('input[name="params_encryption"]').attr('type', 'text')
+
+    })
+
+
+    $d.off('click', '.key_encription_hide').on('click', '.key_encription_hide', function(){
+
+        $('.key_encription_hide').hide()
+        $('.key_encription_show').show()
+
+        $('input[name="params_encryption"]').attr('type', 'password')
+
     })
 
 

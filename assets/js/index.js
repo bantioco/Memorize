@@ -20,6 +20,10 @@ let get_data_user = ()=>{
                     }
                     else{
 
+                        import('./modules/ModFunctions.js').then(function(ModFunctions) {
+                            ModFunctions.default();
+                        });
+
                         /*
                         import('./modules/ModFunctions.js').then(function(ModFunctions) { ModFunctions.default(); });
 

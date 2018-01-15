@@ -125,6 +125,10 @@ body{
             color: #FFBA2A;
         }
     }
+
+    .view_show_all_item{
+        /*color: #FFBA2A;*/
+    }
 }
 
 
@@ -442,6 +446,19 @@ body{
         margin: 0 10px 3px 10px;
         background-color: #FFFFFF;
         padding: 5px;
+
+        input[name="params_encryption"]{
+            float:left;
+            width: 94%;
+        }
+
+        .key_encription_show,
+        .key_encription_hide{
+            float:right;
+            width: 5%;
+            padding-top: 5px;
+            cursor: pointer;
+        }
     }
 
     .ui-sortable-placeholder{
