@@ -2,8 +2,6 @@ let app = function(){
 
     let $d = $(document), login, email, remember = "0", datetime = moment().format("YYYY-MM-DD HH:mm:ss"), myIP;
 
-    console.log( db )
-
     if( window.openDatabase ){
         var db = openDatabase('my_acess_db', '1.0', 'My access db', 5 * 1024 * 1024);
     }
@@ -141,24 +139,43 @@ let app = function(){
         })
     }
 
+    let targetID;
+
     let item_droppable = ()=>{
 
         $( ".category-view-item" ).droppable({
             accept: ".view-item",
+            hoverClass: "drop-hover",
             over: function( event, ui ) {
                 $(event.target).addClass('dropped');
+                targetID    = $(event.target).attr('data-id')
             },
             drop: function( event, ui ){
 
-                let targetID    = $(event.target).attr('data-id')
+                targetID    = $(event.target).attr('data-id')
                 let clone       = $(ui.draggable[0]).clone()
 
                 $(ui.draggable[0]).addClass("ToRemove")
 
                 let itemID = $(ui.draggable[0]).attr('data-id')
 
-                //$('.category-view-item[data-id="'+targetID+'"]').prepend( clone );
-                $(clone).insertBefore('.ui-sortable-placeholder')
+                let check = $('.category-view-item[data-id="'+targetID+'"]').find('.ui-sortable-placeholder')
+
+                console.log( check.length )
+
+                if( check.length !=1 ){
+                    console.log( 'empty' )
+                    $('.category-view-item[data-id="'+targetID+'"]').append(clone)
+                }
+                else{
+                    console.log( 'NOT empty' )
+                    $(clone).insertBefore('.ui-sortable-placeholder')
+                    $('.ui-sortable-placeholder').hide()
+                }
+
+                //$(clone).insertBefore('.ui-sortable-placeholder')
+                //$('.ui-sortable-placeholder').hide()
+
 
                 $(clone).removeAttr('style')
 
@@ -168,9 +185,10 @@ let app = function(){
 
                 db.transaction(function(tx) {
 
-                    tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', [targetID, itemID]);
-
+                    tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', [targetID, itemID])
                 })
+
+                //},1000)
             },
             out: function( event, ui ) {
 
@@ -867,6 +885,11 @@ let app = function(){
                     $('#a_link_share_sync').attr('href', 'mailto:?subject=The link for share my access. Remove this email after sync app...&&cc='+email+'&body=http://'+myIP+':3000/'+key)
 
                     $('input[name="http_server"]').prop('checked', true);
+
+                    $('#params_encrypt_data_state').show()
+                }
+                else{
+                    $('#params_encrypt_data_state').hide()
                 }
 
                 // ENCRYPTION DATA
@@ -1156,7 +1179,9 @@ let app = function(){
             $('#params_encryption').prop('disabled', false)
 
             $('#encrypt_data_result').html('<div id="encrypt_data_result_html">Decrypted !</div>')
-            setTimeout(function(){ $('#encrypt_data_result_html').remove() },1500)
+            setTimeout(function(){
+                $('#encrypt_data_result_html').remove()
+            },1500)
         }
     })
 
