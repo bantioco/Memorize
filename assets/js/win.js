@@ -8,7 +8,7 @@ console.log( '*** OS PLATFORM : '+osplatform+' ***' )
 
 win.y = 0
 
-win.showDevTools()
+//win.showDevTools()
 
 let tray = null;
     tray = new nw.Tray({
