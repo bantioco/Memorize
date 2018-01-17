@@ -182,7 +182,6 @@ body{
                 position:relative;
                 overflow: hidden;
                 float: left;
-                overflow:hidden;
                 font-size: 28px;
                 font-weight: bold;
                 padding: 0 5px;
@@ -190,6 +189,50 @@ body{
 
             .title-category:first-letter{
                 text-transform: uppercase;
+            }
+
+            .category-btn{
+                position:relative;
+                overflow: hidden;
+                float: right;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 10px 10px 0 5px;
+
+                .fa{
+                    cursor: pointer;
+                }
+
+                .category_item_delete:hover{
+                    color: #FF1A00;
+                    transition: color .3s;
+                }
+            }
+
+            .category-grip{
+                overflow: hidden;
+                float: right;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 10px 10px 0 5px;
+
+                cursor: move;
+            }
+            .category-grip:hover{
+                color: #2CBCD3;
+            }
+
+            .category-grip-notice{
+
+                position: absolute;
+                right: 25px;
+                padding: 9px 10px;
+                text-align: center;
+                background-color: #FFF;
+                color: #2CBCD3;
+                z-index: 99;
+                display: none;
+
             }
         }
     }
@@ -346,7 +389,6 @@ body{
                 display: inline-block;
                 margin: 0 5px 0 10px;
                 float: right;
-                cursor:pointer;
                 margin-top: 3px;
                 cursor: move;
                 text-align:center;

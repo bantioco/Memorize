@@ -105,12 +105,49 @@ let app = function(){
     }
 
 
+    let category_sortable = ()=>{
+
+        $( "#view_data" ).sortable({
+            items: ".view-category",
+            handle: ".category-grip",
+            opacity: 0.5,
+            axis: "y",
+            revert: true,
+            stop: function(event, ui){
+
+                if( window.openDatabase ){
+
+                    var db = openDatabase('my_acess_db', '1.0', 'My access db', 5 * 1024 * 1024);
+
+                    $('.view-category').each(function(i, v) {
+
+                        console.log( v )
+
+                        let position = i+1;
+
+                        $(v).attr('data-position', i)
+                        let rowid = $(v).attr('data-id')
+
+                        //$(v).find('.item-position').text(position)
+
+                        db.transaction(function(tx) {
+                            tx.executeSql('UPDATE category SET position=? WHERE rowid=?', [i, rowid]);
+                        })
+                    })
+                }
+
+            }
+        })
+
+    }
+
+
     let item_sortable = ()=>{
 
         $( "#view_data" ).sortable({
-            items: ".view-item",
-            handle: ".grip",
-            connectWith: ".category-view-item",
+            items: ".sortable_element",
+            handle: ".the_grip",
+            /*connectWith: ".category-view-item",*/
             opacity: 0.5,
             axis: "y",
             revert: true,
@@ -127,16 +164,67 @@ let app = function(){
                         $(v).attr('data-position', i)
                         let rowid = $(v).attr('data-id')
 
-                        $(v).find('.item-position').text(position)
+                        //$(v).find('.item-position').text(position)
 
                         db.transaction(function(tx) {
                             tx.executeSql('UPDATE datas SET position=? WHERE rowid=?', [i, rowid]);
+                        })
+                    })
+
+
+                    $('.view-category').each(function(k, e) {
+
+                        let position = k+1;
+
+                        $(e).attr('data-position', k)
+                        let rowid = $(e).attr('data-id')
+
+                        //$(v).find('.item-position').text(position)
+
+                        db.transaction(function(tx) {
+                            tx.executeSql('UPDATE category SET position=? WHERE rowid=?', [k, rowid]);
                         })
                     })
                 }
 
             }
         })
+
+        /*
+
+        $( "#view_data" ).sortable({
+            items: ".view-category",
+            handle: ".category-grip",
+            opacity: 0.5,
+            axis: "y",
+            revert: true,
+            stop: function(event, ui){
+
+                if( window.openDatabase ){
+
+                    var db = openDatabase('my_acess_db', '1.0', 'My access db', 5 * 1024 * 1024);
+
+                    $('.view-category').each(function(i, v) {
+
+                        console.log( v )
+
+                        let position = i+1;
+
+                        $(v).attr('data-position', i)
+                        let rowid = $(v).attr('data-id')
+
+                        //$(v).find('.item-position').text(position)
+
+                        db.transaction(function(tx) {
+                            tx.executeSql('UPDATE category SET position=? WHERE rowid=?', [i, rowid]);
+                        })
+                    })
+                }
+
+            }
+        })
+
+        */
     }
 
     let targetID;
@@ -161,21 +249,13 @@ let app = function(){
 
                 let check = $('.category-view-item[data-id="'+targetID+'"]').find('.ui-sortable-placeholder')
 
-                console.log( check.length )
-
                 if( check.length !=1 ){
-                    console.log( 'empty' )
                     $('.category-view-item[data-id="'+targetID+'"]').append(clone)
                 }
                 else{
-                    console.log( 'NOT empty' )
                     $(clone).insertBefore('.ui-sortable-placeholder')
                     $('.ui-sortable-placeholder').hide()
                 }
-
-                //$(clone).insertBefore('.ui-sortable-placeholder')
-                //$('.ui-sortable-placeholder').hide()
-
 
                 $(clone).removeAttr('style')
 
@@ -187,8 +267,6 @@ let app = function(){
 
                     tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', [targetID, itemID])
                 })
-
-                //},1000)
             },
             out: function( event, ui ) {
 
@@ -271,15 +349,19 @@ let app = function(){
                                     '<div data-id="'+v.rowid+'" class="category-hide"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
                                     '<div class="img-category"><img src="/upload/'+v.img+'"></div>'+
                                     '<div class="title-category">'+v.title+'</div>'+
+                                    '<div class="category-btn"><i data-id="'+v.rowid+'" class="fa fa-trash category_item_delete" aria-hidden="true"></i></div>'+
+                                    '<div class="category-btn"><i data-id="'+v.rowid+'" class="fa fa-pencil category_item_edit" aria-hidden="true"></i></div>'+
                                 '</div>'+
                                 '<div data-id="'+v.rowid+'" class="category-view-item"></div>'
                             '</div>';
 
-                        $('#view_data').prepend(category)
+                        $('#view_data').append(category)
 
                         $('.category-hide[data-id="'+v.rowid+'"]').children('i').css('transform','rotate(45deg)')
 
                     })
+
+                    //category_sortable()
 
                 }
 
@@ -289,9 +371,9 @@ let app = function(){
     }
 
 
-    let load_data = ( order = "ASC" )=>{
+    let load_data = ( order="ASC" )=>{
 
-        load_category()
+        load_category(order)
 
         setTimeout(function(){
 
@@ -323,13 +405,13 @@ let app = function(){
                                             description = description.toString(CryptoJS.enc.Utf8);
 
                                             let item =
-                                                '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data">'+
+                                                '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data sortable_element">'+
 
                                                     '<div class="nav-item">'+
                                                         '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
                                                         '<div class="title-item">'+v.title+'</div>'+
                                                         '<div data-id="'+v.rowid+'" class="grip-notice">Drag me..</div>'+
-                                                        '<div data-id="'+v.rowid+'" class="grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
+                                                        '<div data-id="'+v.rowid+'" class="grip the_grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
                                                         '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-trash view_item_delete" aria-hidden="true"></i></div>'+
                                                         '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-pencil view_item_edit" aria-hidden="true"></i></div>'+
                                                     '</div>'+
@@ -369,13 +451,13 @@ let app = function(){
                                 }
                                 else{
                                     let item =
-                                        '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data">'+
+                                        '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data sortable_element">'+
 
                                             '<div class="nav-item">'+
                                                 '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
                                                 '<div class="title-item">'+v.title+'</div>'+
                                                 '<div data-id="'+v.rowid+'" class="grip-notice">Drag me..</div>'+
-                                                '<div data-id="'+v.rowid+'" class="grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
+                                                '<div data-id="'+v.rowid+'" class="grip the_grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
                                                 '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-trash view_item_delete" aria-hidden="true"></i></div>'+
                                                 '<div class="btn-nav"><i data-id="'+v.rowid+'" class="fa fa-pencil view_item_edit" aria-hidden="true"></i></div>'+
                                             '</div>'+
@@ -421,7 +503,9 @@ let app = function(){
 
                             search_script();
 
-                            setTimeout(function(){ item_droppable(); },2000)
+                            setTimeout(function(){
+                                item_droppable();
+                            },2000)
                         }
                     });
                 });
@@ -1402,6 +1486,99 @@ let app = function(){
 
 
     /***********************************************************************
+        EDIT CATEGORY
+    ************************************************************************/
+
+    $d.off('click', '.category_item_edit').on('click', '.category_item_edit', function(){
+
+        let rowid = $(this).attr('data-id')
+
+        $.post('/templates/edit_category.html', function( data ){
+
+            $('#template_load').html( data );
+
+            db.transaction(function(tx) {
+
+                tx.executeSql('SELECT * FROM category WHERE rowid=?', [rowid], function(tx, results){
+
+                    if( results.rows ){
+
+                        let data        = results.rows[0];
+
+                        $('input[name="row_id"]').val(rowid)
+                        $('input[name="edit_title"]').val(data.title)
+                        $('#add_img_loaded').html('<img src="/upload/'+data.img+'"/>')
+
+                        let description = data.description
+                                description = description.replace(/<br\s*\/?>/gi, "")
+                        $('textarea[name="edit_description"]').val(description)
+                    }
+                })
+            })
+        })
+    })
+
+    $d.off('submit', '#form_edit_category').on('submit', '#form_edit_category', function( e ){
+
+        e.preventDefault()
+
+        let rowid           = $('input[name="row_id"]').val();
+        let title           = $('input[name="edit_title"]').val()
+        let description     = nl2br( $('textarea[name="edit_description"]').val() )
+
+        if( title.length >= 1 && description.length >= 1 ){
+
+            let datetime    = moment().format("YYYY-MM-DD HH:mm:ss");
+            let img         = $('input[name="edit_img"]').val()
+
+            let $this       = $('input[name="edit_img"]')[0]
+            let imgsend     = upload_img(img, $this);
+
+            db.transaction(function (tx) {
+
+                if( imgsend != "default.png" ){
+
+                    tx.executeSql('UPDATE category SET title=?, description=?, img=?, dateupdate=? WHERE rowid=?', [title, description, imgsend, datetime, rowid]);
+                }
+                else{
+                    tx.executeSql('UPDATE category SET title=?, description=?, dateupdate=? WHERE rowid=?', [title, description, datetime, rowid]);
+                }
+
+
+                $.post('/templates/view.html', function( data ){
+
+                    $('#template_load').html( data );
+
+                    load_data(order);
+                })
+
+            })
+
+        }
+        else{
+
+            if(title.length <=0 ){
+
+                $('input[name="add_title"]').val('this field is empty..')
+
+                setTimeout(function(){
+                    $('input[name="add_title"]').val(title)
+                },2000)
+            }
+
+            if(description.length <=0 ){
+
+                $('textarea[name="add_description"]').val('this field is empty..')
+
+                setTimeout(function(){
+                    $('textarea[name="add_description"]').val(description)
+                },2000)
+            }
+        }
+    })
+
+
+    /***********************************************************************
         EDIT DATA
     ************************************************************************/
     $d.off('change', 'input[name="edit_img"]').on('change', 'input[name="edit_img"]', function(){
@@ -1435,6 +1612,7 @@ let app = function(){
                         if( data.encrypted === "1"){
 
                             tx.executeSql("SELECT key FROM encryption", [], function(tx,results) {
+
                                 if( results.rows[0] ){
 
                                     let key = results.rows[0].key;
@@ -1522,7 +1700,7 @@ let app = function(){
 
                     $('#template_load').html( data );
 
-                    load_data(order);
+                    load_category(order)
                 })
 
             })
@@ -1599,7 +1777,6 @@ let app = function(){
 
     })
 
-
     $d.off('click', '.hide-item').on('click', '.hide-item', function(){
 
         let rowid = $(this).attr('data-id');
@@ -1634,7 +1811,6 @@ let app = function(){
 
     })
 
-
     $d.off('click', '.view_hide_all_item').on('click', '.view_hide_all_item', function(){
 
         if( $('.view-item').is(':visible') ){
@@ -1663,8 +1839,19 @@ let app = function(){
     })
     $d.off('mouseleave', '.grip, .view-item').on('mouseleave', '.grip, .view-item', function(){
         let dataid = $(this).attr('data-id')
-        $('.grip-notice[data-id="'+dataid+'"]').fadeOut(300)
+        $('.grip-notice[data-id="'+dataid+'"]').hide()
     })
+
+    /*
+    $d.off('mouseenter', '.category-grip').on('mouseenter', '.category-grip', function(){
+        let dataid = $(this).attr('data-id')
+        $('.category-grip-notice[data-id="'+dataid+'"]').fadeIn(300)
+    })
+    $d.off('mouseleave', '.category-grip, .view-category').on('mouseleave', '.category-grip, .view-category', function(){
+        let dataid = $(this).attr('data-id')
+        $('.category-grip-notice[data-id="'+dataid+'"]').hide()
+    })
+    */
 
     /*
     //Disabled
