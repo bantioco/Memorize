@@ -10,19 +10,27 @@ win.y = 0
 
 //win.showDevTools()
 
-let tray = null;
-    tray = new nw.Tray({
-        title: '',
-        icon: 'assets/icon/16/lock.png',
-        iconsAreTemplates: false
-    });
+if( osplatform === "darwin" ){
 
-tray.on('click', function( event){
-    console.log( win.window )
-})
+    let tray = null;
+        tray = new nw.Tray({
+            title: '',
+            icon: 'assets/icon/16/lock.png',
+            iconsAreTemplates: false
+        });
+
+    tray.on('click', function( event){
+        console.log( win.window )
+        win.show()
+    })
+}
+
+else{
+
+}
 
 
 window.win_reload = ()=>{
-    tray.remove();
+    if( osplatform === "darwin" ){ tray.remove(); }
     win.reload()
 }
