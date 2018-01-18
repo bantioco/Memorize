@@ -24,19 +24,7 @@ let get_data_user = ()=>{
                             ModFunctions.default();
                         });
 
-                        /*
-                        import('./modules/ModFunctions.js').then(function(ModFunctions) { ModFunctions.default(); });
-
-                        setTimeout(function(){
-
-                            import('./modules/ModNavigation.js').then(function(ModNavigation) { ModNavigation.default(); });
-
-                            import('./app.js').then(function(app) { app.default(); });
-
-                        },500);
-                        */
-
-                        import('./app.js').then(function(app) { app.default(); });
+                        setTimeout(function(){ import('./app.js').then(function(app) { app.default(); }); },500)
                     }
                 }
                 else{
