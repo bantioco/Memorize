@@ -32,6 +32,27 @@ body{
     }
 }
 
+
+.loader-block{
+
+    position: fixed;
+    z-index: 99999;
+    left: 40px;
+    top: 0;
+    bottom:25px;
+    right: 0;
+    background-color: #FFF;
+    display:none;
+
+    img{
+        max-width: 250px;
+        margin-top: 35%;
+        margin-left: 25%;
+        opacity: 0.75;
+    }
+
+}
+
 .field-block{
     position: relative;
     overflow: hidden;

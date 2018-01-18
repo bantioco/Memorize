@@ -79,6 +79,9 @@ let app = function(){
     ************************************************************************/
 
     $d.off('click', '#return_home').on('click', '#return_home', function(){
+
+        loader_show()
+
         $.post('/templates/view.html', function( data ){
 
             $('#template_load').html( data );

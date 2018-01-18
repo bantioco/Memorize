@@ -11,6 +11,16 @@ let mod_functions = ()=>{
         import('../first_login.js').then(function(first_login) { first_login.default(); });
     }
 
+    window.loader_show = ()=>{
+        $('#loader_block').show();
+    }
+
+    loader_show();
+
+    window.loader_hide = ()=>{
+        $('#loader_block').fadeOut(300);
+    }
+
 
     window.nl2br = ( str, is_xhtml )=> {
         let breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
@@ -714,7 +724,13 @@ let mod_functions = ()=>{
 
                         setTimeout(function(){
 
-                            item_droppable();
+                            loader_hide()
+
+                        },500)
+
+                        setTimeout(function(){
+
+                            item_droppable()
 
                         },2000)
 
