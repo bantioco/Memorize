@@ -10,12 +10,12 @@ nwjs
 
 # Hide
 ![](/github/hidden.png)
-hide if someone next
+> hide if someone next
 
 # Params
 ![](/github/params.png)
-Encrypt data and synchronize
+> Encrypt data and synchronize
 
 # Synchronize api
 ![](/github/api.png)
-Api for synchronize data, with encrypted description
+> Api for synchronize data, with encrypted description
