@@ -536,14 +536,32 @@ let mod_functions = ()=>{
         /* ..SEARCH.. */
         $d.off('keyup', '#item_filter_keywords').on('keyup', '#item_filter_keywords', function(){
 
+            $('.keyword_data').removeClass('result_contains')
+
             var searchvalue = $(this).val()
 
             if( searchvalue.length >= 2 ){
+
                 $('.keyword_data').hide()
-                //$('.modal-title-content').hide()
-                var keyword = $('.keyword_data:icontains("'+searchvalue+'")').show()
+
+                var keyword = $('.keyword_data:icontains("'+searchvalue+'")').show().addClass('result_contains')
+
+                $('.category-view-item').each(function(k,v){
+
+                    let category_id = $(v).attr('data-id')
+
+                    let nbItem = $(v).find('.result_contains').length
+
+                    if( nbItem == 0){
+                        $('.view-category[data-id="'+category_id+'"]').hide()
+                    }
+                })
+
+
             }
             else{
+                $('.view-category').show()
+                $('.keyword_data').show().removeClass('result_contains')
                 $('.keyword_data').show()
                 //$('.modal-title-content').show()
             }
