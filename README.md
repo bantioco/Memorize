@@ -20,5 +20,5 @@ nwjs
 ![](/github/api.png)
 > Api for synchronize data, with encrypted description
 
-# Authors
+# Author
 ANTIOCO Benjamin
