@@ -489,6 +489,8 @@ let mod_functions = ()=>{
 
                     tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', [targetID, itemID])
                 })
+
+                get_item_in_category()
             },
             out: function( event, ui ) {
 
@@ -573,6 +575,8 @@ let mod_functions = ()=>{
 
     window.load_category = ( order = "ASC" )=>{
 
+        $('.view_show_all_category').css('transform','rotate(45deg)')
+
         db.transaction(function(tx) {
 
             tx.executeSql('SELECT rowid, * FROM category ORDER BY position '+ order, [], function (tx, results) {
@@ -592,6 +596,11 @@ let mod_functions = ()=>{
                                     '<div class="category-btn"><i data-id="'+v.rowid+'" class="fa fa-trash category_item_delete" aria-hidden="true"></i></div>'+
                                     '<div class="category-btn"><i data-id="'+v.rowid+'" class="fa fa-pencil category_item_edit" aria-hidden="true"></i></div>'+
                                 '</div>'+
+
+                                '<div data-id="'+v.rowid+'" class="category-delete-confirmation">'+
+                                    '<div class="category_confirm_delete">DELETE</div><div class="category_cancel_delete">CANCEL</div>'+
+                                '</div>'+
+
                                 '<div data-id="'+v.rowid+'" class="category-view-item"></div>'
                             '</div>';
 
@@ -646,7 +655,7 @@ let mod_functions = ()=>{
                                     '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data sortable_element">'+
 
                                         '<div class="nav-item">'+
-                                            '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
+                                            '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></div>'+
                                             '<div class="title-item">'+v.title+'</div>'+
                                             '<div data-id="'+v.rowid+'" class="grip-notice">Drag me..</div>'+
                                             '<div data-id="'+v.rowid+'" class="grip the_grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
@@ -691,7 +700,7 @@ let mod_functions = ()=>{
                                     '<div data-id="'+v.rowid+'" data-position="'+v.position+'" class="view-item keyword_data sortable_element">'+
 
                                         '<div class="nav-item">'+
-                                            '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-angle-down" aria-hidden="true"></i></div>'+
+                                            '<div data-id="'+v.rowid+'" class="hide-item"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></div>'+
                                             '<div class="title-item">'+v.title+'</div>'+
                                             '<div data-id="'+v.rowid+'" class="grip-notice">Drag me..</div>'+
                                             '<div data-id="'+v.rowid+'" class="grip the_grip"><i class="fa fa-paw" aria-hidden="true"></i></div>'+
@@ -750,6 +759,8 @@ let mod_functions = ()=>{
 
                             item_droppable()
 
+                            get_item_in_category()
+
                         },2000)
 
 
@@ -758,6 +769,25 @@ let mod_functions = ()=>{
             })
 
         },700)
+    }
+
+
+    window.get_item_in_category = ()=>{
+
+        let lengthItem = 0, categoryID;
+
+        $('.category-view-item').each(function(k, v){
+
+            categoryID = $(v).attr('data-id')
+            lengthItem = $(v).find('.view-item').length
+
+            if( lengthItem <= 0 ){
+                $('.category_item_delete[data-id="'+categoryID+'"]').show()
+            }
+            else{
+                $('.category_item_delete[data-id="'+categoryID+'"]').hide()
+            }
+        })
     }
 
 

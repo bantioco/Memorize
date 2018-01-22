@@ -173,6 +173,10 @@ body{
             overflow:hidden;
             margin-top: 10px;
 
+            .category_item_delete{
+                display: none;
+            }
+
             .category-hide{
                 position:relative;
                 overflow: hidden;
@@ -254,6 +258,45 @@ body{
                 z-index: 99;
                 display: none;
 
+            }
+        }
+
+        .category-delete-confirmation{
+            position: relative;
+            overflow: hidden;
+            padding: 5px;
+            margin: 5px 0;
+            display: none;
+
+            .category_confirm_delete{
+                position: relative;
+                overflow: hidden;
+                float: left;
+                padding: 5px;
+                cursor: pointer;
+                text-align:center;
+                width: 100px;
+                background-color: #FF1A00;
+                color: #FFFFFF;
+                margin: 0 20px 0 0;
+            }
+
+            .category_confirm_delete:hover,
+            .category_cancel_delete:hover{
+                opacity: 0.5;
+            }
+
+            .category_cancel_delete{
+                position: relative;
+                overflow: hidden;
+                float: left;
+                padding: 5px;
+                cursor: pointer;
+                text-align:center;
+                width: 100px;
+                background-color: #3A3F42;
+                color: #FFFFFF;
+                margin: 0 20px 0 0;
             }
         }
     }

@@ -886,6 +886,45 @@ let app = function(){
 
     })
 
+
+
+
+
+    $d.off('click', '.category_item_delete').on('click', '.category_item_delete', function(){
+
+        let rowid = $(this).attr('data-id')
+
+        $('.category-delete-confirmation[data-id="'+rowid+'"]').fadeIn(300);
+
+    })
+
+
+    $d.off('click', '.category_confirm_delete').on('click', '.category_confirm_delete', function(){
+
+        let rowid = $(this).parent('.category-delete-confirmation').attr('data-id')
+
+        db.transaction(function(tx) {
+            tx.executeSql('DELETE FROM category WHERE rowid=?', [rowid]);
+
+            $('#view_data').html('')
+
+            load_data(order);
+        });
+
+    })
+
+    $d.off('click', '.category_cancel_delete').on('click', '.category_cancel_delete', function(){
+
+        let rowid = $(this).parent('.category-delete-confirmation').attr('data-id')
+
+        $('.category-delete-confirmation[data-id="'+rowid+'"]').fadeOut(300);
+
+    })
+
+
+
+
+
     $d.off('click', '.category-hide').on('click', '.category-hide', function(){
 
         let rowid = $(this).attr('data-id');
@@ -903,13 +942,15 @@ let app = function(){
 
     $d.off('click', '.hide-item').on('click', '.hide-item', function(){
 
-        let rowid = $(this).attr('data-id');
+        let $this = $(this)
+        let rowid = $this.attr('data-id');
+
 
         if( $('.description-item[data-id="'+rowid+'"]').is(':visible') ){
-            $(this).children('i').css('transform','rotate(0deg)')
+            $this.children('i').css('transform','rotate(0deg)')
         }
         else{
-            $(this).children('i').css('transform','rotate(45deg)')
+            $this.children('i').css('transform','rotate(90deg)')
         }
 
         $('.description-item[data-id="'+rowid+'"]').slideToggle(300)
@@ -921,9 +962,11 @@ let app = function(){
         //if( $('.view-item').is(':visible') ){
             $(this).hide()
             $('.view_hide_all_description').show()
-            $('.category-view-item').slideDown()
+            //$('.category-view-item').slideDown()
             $('.description-item').slideDown(300)
-            $('.category-hide').children('i').css('transform','rotate(45deg)')
+            //$('.category-hide').children('i').css('transform','rotate(45deg)')
+
+            $('.hide-item').children('i').css('transform','rotate(90deg)')
         //}
     })
 
@@ -932,9 +975,11 @@ let app = function(){
         if( $('.view-item').is(':visible') ){
             $(this).hide()
             $('.view_show_all_description').show()
-            $('.category-view-item').slideUp()
+            //$('.category-view-item').slideUp()
             $('.description-item').slideUp(300)
-            $('.category-hide').children('i').css('transform','rotate(0deg)')
+            //$('.category-hide').children('i').css('transform','rotate(0deg)')
+
+            $('.hide-item').children('i').css('transform','rotate(0deg)')
         }
 
     })
@@ -952,11 +997,31 @@ let app = function(){
 
     $d.off('click', '.view_show_all_item').on('click', '.view_show_all_item', function(){
 
+        let $this = $(this)
+
         if( $('.view-item').is(':visible') ){
-            $(this).hide()
+            $this.hide()
             $('.view_hide_all_item').show()
             $('.view-item').css('opacity','1')
             $('.secret-img').fadeOut(300)
+        }
+
+    })
+
+
+    $d.off('click', '.view_show_all_category').on('click', '.view_show_all_category', function(){
+
+        let $this = $(this)
+
+        if( $('.category-view-item').is(':visible') ){
+            $this.css('transform','rotate(0deg)')
+            $('.category-view-item').hide(300)
+            $('.category-hide').children('i').css('transform','rotate(0deg)')
+        }
+        else{
+            $this.css('transform','rotate(45deg)')
+            $('.category-view-item').show(300)
+            $('.category-hide').children('i').css('transform','rotate(45deg)')
         }
 
     })
