@@ -11,9 +11,13 @@ Version Development:
 Download and install nwjs-sdk
 
 Download or clone project
+
 cd /path/to/Memorize/
+
 npm update
+
 execute : nw ../Memorize
+
 if not working add nwjs-sdk in PATH VARIABLE..
 
 
