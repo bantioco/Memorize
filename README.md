@@ -5,6 +5,18 @@ Memorize for me, password, link... And synchronise all computer in local network
 # Project
 nwjs
 
+# Use dev
+Version Development:
+
+Download and install nwjs-sdk
+
+Download or clone project
+cd /path/to/Memorize/
+npm update
+execute : nw ../Memorize
+if not working add nwjs-sdk in PATH VARIABLE..
+
+
 # Home
 ![](/github/home.png)
 

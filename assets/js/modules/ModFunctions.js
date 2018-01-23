@@ -496,6 +496,8 @@ let mod_functions = ()=>{
 
                 let itemID = $(ui.draggable[0]).attr('data-id')
 
+                $('.ui-sortable-placeholder').show()
+
                 db.transaction(function(tx) {
                     tx.executeSql('UPDATE datas SET category=? WHERE rowid=?', ["0", itemID]);
                 })
