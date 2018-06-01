@@ -2,3 +2,4 @@
 /node_modules/
 /upload/
 !upload/default.png
+nmp-debug.log
